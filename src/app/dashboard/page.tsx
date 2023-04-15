@@ -1,10 +1,9 @@
 import React from 'react'
-import Button from '@/components/ui/Button'
+import { getServerSession } from 'next-auth'
+import { authOptions } from '@/lib/auth'
 
-export default function page() {
-  return (
-    <div>
-      <Button>Hello world</Button>
-    </div>
-  )
+export default async function page() {
+  const session = await getServerSession(authOptions)
+
+  return <pre>{JSON.stringify(session)}</pre>
 }
