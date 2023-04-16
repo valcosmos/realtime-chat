@@ -8,6 +8,8 @@ import { authOptions } from '@/lib/auth'
 import type { Icon } from '@/components/Icons'
 import { Icons } from '@/components/Icons'
 import SignOutButton from '@/components/SignOutButton'
+import FriendRequestSidebarOptions from '@/components/FriendRequestSidebarOptions'
+import { fetchRedis } from '@/helpers/redis'
 
 interface LayoutProps {
   children: ReactNode
@@ -32,6 +34,8 @@ export default async function layout({ children }: LayoutProps) {
   const session = await getServerSession(authOptions)
   if (!session)
     notFound()
+  const unseenRequestCount = (await fetchRedis('smembers', `user:${session.user.id}:incoming_friend_requests`) as User[]).length
+
   return (
     <div className="flex w-full h-screen">
       <div className="flex flex-col w-full h-full max-w-xs px-6 overflow-y-auto bg-white border-r border-gray-200 grow gap-y-5">
@@ -65,6 +69,9 @@ export default async function layout({ children }: LayoutProps) {
               </ul>
             </li>
 
+            <li>
+              <FriendRequestSidebarOptions sessionId={session.user.id} initialUnseenRequestCount={unseenRequestCount}/>
+            </li>
             <li className="flex items-center mt-auto -mx-6">
               <div className="flex items-center flex-1 px-6 py-3 text-sm font-semibold leading-6 text-gray-900 gap-x-4">
                 <div className="relative w-8 h-8 bg-gray-50">
