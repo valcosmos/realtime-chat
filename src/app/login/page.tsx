@@ -10,7 +10,7 @@ export default function Page() {
     setIsGoogleLoading(true)
     try {
       // throw new Error('does not matter')
-      await signIn('google')
+      await signIn('google', { callbackUrl: '/dashboard' })
     }
     catch (error) {
       // display error message to user
@@ -25,7 +25,7 @@ export default function Page() {
   async function loginWithGithub() {
     try {
       setIsGithubLoading(true)
-      await signIn('github')
+      await signIn('github', { callbackUrl: '/dashboard' })
     }
     catch (error) {
       toast.error('Something went wrong with your login')

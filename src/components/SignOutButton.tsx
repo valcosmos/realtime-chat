@@ -18,7 +18,7 @@ export default function SignOutButton({ ...props }: SignOutButtonProps) {
     <Button {...props} variant={'ghost'} onClick={async () => {
       setIsSignOut(true)
       try {
-        await signOut()
+        await signOut({ callbackUrl: '/login' })
       }
       catch (error) {
         toast.error('There was a problem signing out')
