@@ -7,7 +7,7 @@ import { db } from '@/lib/db'
 
 export async function POST(req: Request) {
   try {
-    const body = req.json()
+    const body = await req.json()
     const { id: idToAdd } = z.object({ id: z.string() }).parse(body)
     const session = await getServerSession(authOptions)
 
@@ -33,6 +33,7 @@ export async function POST(req: Request) {
   }
 
   catch (error) {
+    console.log('===>', error)
     if (error instanceof z.ZodError)
       return new Response('Invalid request payload', { status: HttpStatusCode.UnprocessableEntity })
 
