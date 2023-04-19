@@ -33,7 +33,7 @@ export async function POST(req: Request) {
   }
 
   catch (error) {
-    console.log('===>', error)
+    // console.log('===>', error)
     if (error instanceof z.ZodError)
       return new Response('Invalid request payload', { status: HttpStatusCode.UnprocessableEntity })
 
