@@ -4,6 +4,7 @@ import React from 'react'
 import { authOptions } from '@/lib/auth'
 import { db } from '@/lib/db'
 import { fetchRedis } from '@/helpers/redis'
+import { messageValidator } from '@/lib/validations/message'
 
 interface PageProps {
   params: {
@@ -15,6 +16,9 @@ async function getChatMessages(chatId: string) {
   try {
     const result: string[] = await fetchRedis('zrange', `chat:${chatId}:messages`, 0, -1)
     const dbMessages = result.map(message => JSON.parse(message) as Message)
+    const reverseDbMessages = dbMessages.reverse()
+    const messages = messageValidator.parse(reverseDbMessages)
+    return messages
   }
   catch (error) {
     notFound()

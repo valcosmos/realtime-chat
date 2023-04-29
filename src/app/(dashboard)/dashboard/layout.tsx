@@ -10,6 +10,8 @@ import { Icons } from '@/components/Icons'
 import SignOutButton from '@/components/SignOutButton'
 import FriendRequestSidebarOptions from '@/components/FriendRequestSidebarOptions'
 import { fetchRedis } from '@/helpers/redis'
+import { getFriendsByUserId } from '@/helpers/get-friends-by-user-id'
+import SidebarChatList from '@/components/SidebarChatList'
 
 interface LayoutProps {
   children: ReactNode
@@ -34,7 +36,10 @@ export default async function layout({ children }: LayoutProps) {
   const session = await getServerSession(authOptions)
   if (!session)
     notFound()
-  const unseenRequestCount = (await fetchRedis('smembers', `user:${session.user.id}:incoming_friend_requests`) as User[]).length
+  const friends = await getFriendsByUserId(session.user.id)
+  const unseenRequestCount = (
+    (await fetchRedis('smembers', `user:${session.user.id}:incoming_friend_requests`)) as User[]
+  ).length
 
   return (
     <div className="flex w-full h-screen">
@@ -43,10 +48,17 @@ export default async function layout({ children }: LayoutProps) {
           <Icons.Logo className="w-auto h-8 text-indigo-600" />
         </Link>
 
-        <div className="font-semibold leading-6 text-gray-400 text-sx">Your chats</div>
+        {friends.length > 0
+          ? (
+          <div className="font-semibold leading-6 text-gray-400 text-sx">Your chats</div>
+            )
+          : null}
+
         <nav className="flex flex-col flex-1">
           <ul role="list" className="flex flex-col flex-1 gap-y-7">
-            <li>{/* chats that this user has */}</li>
+            <li>
+              <SidebarChatList sessionId={ session.user.id } friends={friends} />
+            </li>
             <li>
               <div className="text-xs font-semibold leading-6 text-gray-400">Overview</div>
               <ul role="list" className="mt-2 -mx-2 space-y-1">
@@ -66,12 +78,15 @@ export default async function layout({ children }: LayoutProps) {
                     </li>
                   )
                 })}
+                <li>
+                  <FriendRequestSidebarOptions
+                    sessionId={session.user.id}
+                    initialUnseenRequestCount={unseenRequestCount}
+                  />
+                </li>
               </ul>
             </li>
 
-            <li>
-              <FriendRequestSidebarOptions sessionId={session.user.id} initialUnseenRequestCount={unseenRequestCount}/>
-            </li>
             <li className="flex items-center mt-auto -mx-6">
               <div className="flex items-center flex-1 px-6 py-3 text-sm font-semibold leading-6 text-gray-900 gap-x-4">
                 <div className="relative w-8 h-8 bg-gray-50">
@@ -91,7 +106,7 @@ export default async function layout({ children }: LayoutProps) {
                   </span>
                 </div>
               </div>
-              <SignOutButton className='h-full aspect-square' />
+              <SignOutButton className="h-full aspect-square" />
             </li>
           </ul>
         </nav>
